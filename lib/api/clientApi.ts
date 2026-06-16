@@ -1,14 +1,27 @@
 import axios from "axios";
-import type { Note } from "../types/note";
-import type { NewNote } from "../types/note";
+import type { Note } from "../../types/note";
+import type { NewNote } from "../../types/note";
+import {api} from "@/app/api/api"
 
 interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
 }
 
+export type RegisterRequest = {
+  email: string;
+  password: string;
+  userName: string;
+};
 
-axios.defaults.baseURL = "https://notehub-public.goit.study/api";
+export type User = {
+  id: string;
+  email: string;
+  userName?: string;
+  photoUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export const fetchNotes = async (searchText: string, page: number, tag?: string): Promise<FetchNotesResponse> => {
   const response = await axios.get<FetchNotesResponse>("/notes", {
@@ -53,3 +66,9 @@ export const fetchNoteById = async ( id: string): Promise<Note> => {
     }); 
     return response.data;
 }
+
+
+export const register = async (data: RegisterRequest) => {
+  const res = await api.post<User>('/auth/register', data);
+  return res.data;
+};
