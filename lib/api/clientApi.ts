@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Note } from "../../types/note";
 import type { NewNote } from "../../types/note";
-import {api} from "@/app/api/api"
+import {api} from "@/lib/api/api"
 
 interface FetchNotesResponse {
   notes: Note[];

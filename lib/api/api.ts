@@ -1,4 +1,20 @@
-import axios from "axios";
+import axios, { AxiosError } from 'axios';
+
+const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
+
+export type ApiError = AxiosError<{ error: string }>
+export const api = axios.create({
+  baseURL,
+  withCredentials: true,
+});
+
+
+
+
+
+
+
+/* import axios from "axios";
 import type { Note } from "../../types/note";
 import type { NewNote } from "../../types/note";
 
@@ -53,3 +69,5 @@ export const fetchNoteById = async ( id: string): Promise<Note> => {
     }); 
     return response.data;
 }
+
+*/
