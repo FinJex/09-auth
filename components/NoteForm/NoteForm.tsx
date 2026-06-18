@@ -4,7 +4,7 @@ import css from "./NoteForm.module.css";
 import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createNote } from "../../lib/api/api";
+import { createNote } from "../../lib/api/clientApi";
 import { useNoteDraft }from "@/lib/store/noteStore";
 type Tag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
 
