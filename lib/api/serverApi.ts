@@ -1,8 +1,7 @@
 import type { Note } from "../../types/note";
-import axios from "axios";
 import {api} from "@/lib/api/api";
 import { cookies } from 'next/headers';
-import {User} from "../../lib/api/clientApi"
+import {User} from "@/types/user"
 
 
 interface FetchNotesResponse {
@@ -16,7 +15,7 @@ export type UpdateUserRequest = {
 };
 
 export const fetchNotes = async (searchText: string, page: number, tag?: string): Promise<FetchNotesResponse> => {
-  const response = await axios.get<FetchNotesResponse>("/notes", {
+  const response = await api.get<FetchNotesResponse>("/notes", {
     params: {
       page,
       perPage: 12,
@@ -33,9 +32,9 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
 
 
 export const fetchNoteById = async ( id: string): Promise<Note> => {
-    const response = await axios.get<Note>(`/notes/${id}`, {
+    const response = await api.get<Note>(`/notes/${id}`, {
                     headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+           Cookie: cookieStore.toString(),
     },
     }); 
     return response.data;
@@ -52,7 +51,7 @@ export const checkServerSession = async () => {
 
 export const getMe = async (): Promise<User> => {
   const cookieStore = await cookies();
-  const { data } = await api.get('/auth/me', {
+  const { data } = await api.get('/users/me', {
     headers: {
       Cookie: cookieStore.toString(),
     },
@@ -60,7 +59,16 @@ export const getMe = async (): Promise<User> => {
   return data;
 };
 
-export const updateMe = async (payload: UpdateUserRequest) => {
-  const res = await api.put<User>('/auth/me', payload);
+export const updateMe = async (payload: UpdateUserRequest): Promise<User> => {
+  const cookieStore = await cookies();
+
+  const res = await api.patch<User>('/users/me', payload,
+    {
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    }
+  );
+
   return res.data;
 };

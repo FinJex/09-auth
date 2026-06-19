@@ -1,40 +1,27 @@
-import axios from "axios";
+
 import type { Note } from "../../types/note";
 import type { NewNote } from "../../types/note";
 import {api} from "@/lib/api/api";
+import {User} from "@/types/user";
+import { RegisterRequest, LoginRequest } from "@/types/auth";
 
 interface FetchNotesResponse {
   notes: Note[];
   totalPages: number;
 }
 
-export type RegisterRequest = {
-  email: string;
-  password: string;
-  userName: string;
-};
-
-export type User = {
-  id: string;
-  email: string;
-  userName?: string;
-  photoUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type LoginRequest = {
-  email: string;
-  password: string;
-};
 
 type CheckSessionRequest = {
   success: boolean;
 };
+export type UpdateUserRequest = {
+  userName?: string;
+  photoUrl?: string;
+};
 
 
 export const fetchNotes = async (searchText: string, page: number, tag?: string): Promise<FetchNotesResponse> => {
-  const response = await axios.get<FetchNotesResponse>("/notes", {
+  const response = await api.get<FetchNotesResponse>("/notes", {
     params: {
       page,
       perPage: 12,
@@ -49,8 +36,8 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
   return response.data;
 };
 
-export const createNote = async (note: NewNote) => {
-    const response = await axios.post<Note>("/notes", note, {
+export const createNote = async (note: NewNote): Promise<Note> => {
+    const response = await api.post<Note>("/notes", note, {
             headers: {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     },
@@ -59,7 +46,7 @@ export const createNote = async (note: NewNote) => {
 }
 
 export const deleteNote = async ( id: string): Promise<Note> => {
-    const response = await axios.delete<Note>(`/notes/${id}`, {
+    const response = await api.delete<Note>(`/notes/${id}`, {
                     headers: {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     },
@@ -69,7 +56,7 @@ export const deleteNote = async ( id: string): Promise<Note> => {
 
 
 export const fetchNoteById = async ( id: string): Promise<Note> => {
-    const response = await axios.get<Note>(`/notes/${id}`, {
+    const response = await api.get<Note>(`/notes/${id}`, {
                     headers: {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     },
@@ -78,26 +65,31 @@ export const fetchNoteById = async ( id: string): Promise<Note> => {
 }
 
 
-export const register = async (data: RegisterRequest) => {
+export const register = async (data: RegisterRequest): Promise<User> => {
   const res = await api.post<User>('/auth/register', data);
   return res.data;
 };
 
-export const login = async (data: LoginRequest) => {
+export const login = async (data: LoginRequest): Promise<User> => {
   const res = await api.post<User>('/auth/login', data);
   return res.data;
 };
 
-export const checkSession = async () => {
+export const checkSession = async (): Promise<boolean> => {
   const res = await api.get<CheckSessionRequest>('/auth/session');
   return res.data.success;
 };
 
-export const getMe = async () => {
-  const { data } = await api.get<User>('/auth/me');
+export const getMe = async (): Promise<User> => {
+  const { data } = await api.get<User>('/users/me');
   return data;
 };
 
 export const logout = async (): Promise<void> => {
   await api.post('/auth/logout')
+};
+
+export const updateMe = async (payload: UpdateUserRequest) => {
+  const res = await api.patch<User>('/users/me', payload);
+  return res.data;
 };

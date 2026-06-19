@@ -3,15 +3,20 @@
 import Image from "next/image";
 import css from './EditProfilePage.module.css';
 import { useEffect, useState } from 'react';
-import { getMe, updateMe } from '@/lib/api/serverApi';
+import { getMe } from '@/lib/api/serverApi';
+import { useRouter } from 'next/navigation';
+import { updateMe } from "@/lib/api/clientApi";
+import { useAuthStore } from '@/lib/store/authStore';
 
 
 const EditProfile = () => {
+  const router = useRouter();
 const [userName, setUserName] = useState('');
+const setUser = useAuthStore((state) => state.setUser);
 
 	useEffect(() => {
     getMe().then((user) => {
-      setUserName(user.userName ?? '');
+      setUserName(user.username ?? '');
     });
   }, []);
 
@@ -19,10 +24,17 @@ const [userName, setUserName] = useState('');
     setUserName(event.target.value);
   };
 
-    const handleSaveUser = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await updateMe({ userName});
-  };
+const handleSaveUser = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
+
+  const updatedUser = await updateMe({
+    userName,
+  });
+
+  setUser(updatedUser);
+};
 
     return (
         <main className={css.mainContent}>
@@ -52,7 +64,7 @@ const [userName, setUserName] = useState('');
         <button type="submit" className={css.saveButton}>
           Save
         </button>
-        <button type="button" className={css.cancelButton}>
+        <button type="button" className={css.cancelButton} onClick={() => router.back()}>
           Cancel
         </button>
       </div>
