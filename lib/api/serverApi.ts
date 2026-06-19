@@ -14,9 +14,10 @@ export type UpdateUserRequest = {
   photoUrl?: string;
 };
 
-const cookieStore = await cookies();
+
 
 export const fetchNotes = async (searchText: string, page: number, tag?: string): Promise<FetchNotesResponse> => {
+  const cookieStore = await cookies();
   const response = await api.get<FetchNotesResponse>("/notes", {
     params: {
       page,
@@ -25,7 +26,6 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
       tag: tag === "all" ? undefined : tag,
     },
     headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
        Cookie: cookieStore.toString(),
     },
   });
@@ -34,7 +34,8 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
 };
 
 export const fetchNoteById = async ( id: string): Promise<Note> => {
-    const response = await api.get<Note>(`/notes/${id}`, {
+    const cookieStore = await cookies();
+  const response = await api.get<Note>(`/notes/${id}`, {
                     headers: {
            Cookie: cookieStore.toString(),
     },
