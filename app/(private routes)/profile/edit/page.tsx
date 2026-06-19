@@ -3,19 +3,23 @@
 import Image from "next/image";
 import css from './EditProfilePage.module.css';
 import { useEffect, useState } from 'react';
-import { getMe } from '@/lib/api/serverApi';
+import { getMe } from '@/lib/api/clientApi';
 import { useRouter } from 'next/navigation';
 import { updateMe } from "@/lib/api/clientApi";
 import { useAuthStore } from '@/lib/store/authStore';
+import { User } from "@/types/user";
 
 
 const EditProfile = () => {
   const router = useRouter();
 const [userName, setUserName] = useState('');
 const setUser = useAuthStore((state) => state.setUser);
-
+const [user, setLocalUser] = useState<User | null>(null);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState('');
 	useEffect(() => {
     getMe().then((user) => {
+      setLocalUser(user);
       setUserName(user.username ?? '');
     });
   }, []);
@@ -29,11 +33,21 @@ const handleSaveUser = async (
 ) => {
   event.preventDefault();
 
-  const updatedUser = await updateMe({
-    userName,
-  });
+  try {
+    setLoading(true);
+    setError('');
 
-  setUser(updatedUser);
+    const updatedUser = await updateMe({
+      username: userName,
+    });
+
+    setUser(updatedUser);
+    setLocalUser(updatedUser);
+  } catch {
+    setError('Failed to update profile');
+  } finally {
+    setLoading(false);
+  }
 };
 
     return (
@@ -41,7 +55,7 @@ const handleSaveUser = async (
   <div className={css.profileCard}>
     <h1 className={css.formTitle}>Edit Profile</h1>
 
-    <Image src="avatar"
+    <Image src={user?.avatar ?? ''}
       alt="User Avatar"
       width={120}
       height={120}
@@ -54,15 +68,18 @@ const handleSaveUser = async (
         <input id="username"
           type="text"
           className={css.input}
+          value={userName}
           onChange={handleChange}
         />
       </div>
 
-      <p>Email: user_email@example.com</p>
+      <p>Email: {user?.email}</p>
+
+      {error && <p className={css.error}>{error}</p>}
 
       <div className={css.actions}>
-        <button type="submit" className={css.saveButton}>
-          Save
+        <button type="submit" className={css.saveButton} disabled={loading}>
+          {loading ? 'Saving...' : 'Save'}
         </button>
         <button type="button" className={css.cancelButton} onClick={() => router.back()}>
           Cancel

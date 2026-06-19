@@ -14,6 +14,8 @@ export type UpdateUserRequest = {
   photoUrl?: string;
 };
 
+const cookieStore = await cookies();
+
 export const fetchNotes = async (searchText: string, page: number, tag?: string): Promise<FetchNotesResponse> => {
   const response = await api.get<FetchNotesResponse>("/notes", {
     params: {
@@ -24,12 +26,12 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
     },
     headers: {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+       Cookie: cookieStore.toString(),
     },
   });
 
   return response.data;
 };
-
 
 export const fetchNoteById = async ( id: string): Promise<Note> => {
     const response = await api.get<Note>(`/notes/${id}`, {
@@ -38,7 +40,9 @@ export const fetchNoteById = async ( id: string): Promise<Note> => {
     },
     }); 
     return response.data;
-}
+};
+
+
 export const checkServerSession = async () => {
   const cookieStore = await cookies();
   const res = await api.get('/auth/session', {

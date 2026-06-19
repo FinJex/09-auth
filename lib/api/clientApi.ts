@@ -15,7 +15,7 @@ type CheckSessionRequest = {
   success: boolean;
 };
 export type UpdateUserRequest = {
-  userName?: string;
+  username?: string;
   photoUrl?: string;
 };
 
@@ -28,9 +28,6 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
       search: searchText,
       tag: tag === "all" ? undefined : tag,
     },
-    headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-    },
   });
 
   return response.data;
@@ -38,18 +35,12 @@ export const fetchNotes = async (searchText: string, page: number, tag?: string)
 
 export const createNote = async (note: NewNote): Promise<Note> => {
     const response = await api.post<Note>("/notes", note, {
-            headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-    },
     });
     return response.data;
 }
 
 export const deleteNote = async ( id: string): Promise<Note> => {
     const response = await api.delete<Note>(`/notes/${id}`, {
-                    headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-    },
     }); 
     return response.data;
 }
@@ -57,9 +48,6 @@ export const deleteNote = async ( id: string): Promise<Note> => {
 
 export const fetchNoteById = async ( id: string): Promise<Note> => {
     const response = await api.get<Note>(`/notes/${id}`, {
-                    headers: {
-      Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-    },
     }); 
     return response.data;
 }
